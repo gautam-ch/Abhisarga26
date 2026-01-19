@@ -12,6 +12,7 @@ const links = [
   { href: "/#schedule", label: "Schedule" },
   { href: "/sponsors", label: "Allies", isRoute: true },
   { href: "/crew", label: "Crew", isRoute: true },
+  { href: "/merch", label: "Merch", isRoute: true },
   { href: "/#faq", label: "FAQ" },
   { href: "/contact", label: "Contact", isRoute: true },
 ]
