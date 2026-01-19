@@ -2,7 +2,6 @@ import PortalPulse from "../components/PortalPulse"
 import Hero from "../components/sections/Hero"
 import About from "../components/sections/About"
 import EventTimelineSection from "../components/sections/EventTimeline"
-import Team from "../components/sections/Team"
 import FAQ from "../components/sections/FAQ"
 
 export default function Page() {
@@ -12,7 +11,6 @@ export default function Page() {
       <Hero />
       <About />
       <EventTimelineSection />
-      <Team />
       <FAQ />
     </>
   )
