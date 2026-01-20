@@ -27,7 +27,6 @@ export const EventTimeline = ({ events, className = '' }) => {
   const [visibleStart, setVisibleStart] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
   const [isHoveringTimeline, setIsHoveringTimeline] = useState(false);
-  const [scrollDistance, setScrollDistance] = useState(0);
   const windowSize = 7;
 
   const maxStart = Math.max(events.length - windowSize, 0);
@@ -38,6 +37,10 @@ export const EventTimeline = ({ events, className = '' }) => {
 
   // Get unique dates from all events
   const uniqueDates = [...new Set(events.map(event => event.date))];
+
+  const [minX, setMinX] = useState(0);
+  const [maxX, setMaxX] = useState(0);
+  const [isCalculated, setIsCalculated] = useState(false);
 
   // Motion value for horizontal position
   const x = useMotionValue(0);
@@ -97,7 +100,7 @@ export const EventTimeline = ({ events, className = '' }) => {
         const viewportCenter = window.innerWidth / 2;
         const cardCenter = cardRect.left + cardRect.width / 2;
         const shift = viewportCenter - cardCenter;
-        const targetX = Math.max(scrollDistance, Math.min(0, currentX + shift));
+        const targetX = Math.max(minX, Math.min(maxX, currentX + shift));
 
         animate(x, targetX, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
       }
@@ -127,7 +130,7 @@ export const EventTimeline = ({ events, className = '' }) => {
           const viewportCenter = window.innerWidth / 2;
           const cardCenter = cardRect.left + cardRect.width / 2;
           const shift = viewportCenter - cardCenter;
-          const targetX = Math.max(scrollDistance, Math.min(0, currentX + shift));
+          const targetX = Math.max(minX, Math.min(maxX, currentX + shift));
 
           animate(x, targetX, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
         }
@@ -174,7 +177,7 @@ export const EventTimeline = ({ events, className = '' }) => {
 
     const deltaX = e.clientX - dragStart;
     const currentX = x.get();
-    const newX = Math.max(scrollDistance, Math.min(0, currentX + deltaX));
+    const newX = Math.max(minX, Math.min(maxX, currentX + deltaX));
 
     x.set(newX);
     setDragStart(e.clientX);
@@ -206,7 +209,7 @@ export const EventTimeline = ({ events, className = '' }) => {
     const touchX = e.touches[0].clientX;
     const deltaX = touchX - touchDragStart;
     const currentX = x.get();
-    const newX = Math.max(scrollDistance, Math.min(0, currentX + deltaX));
+    const newX = Math.max(minX, Math.min(maxX, currentX + deltaX));
 
     x.set(newX);
     setTouchDragStart(touchX);
@@ -234,7 +237,7 @@ export const EventTimeline = ({ events, className = '' }) => {
         // Scroll Down (positive deltaY) -> Move Right to Left (decrease x)
         // Smoothly and slowly: standard delta is too fast, reduce it
         const delta = e.deltaY * 0.4;
-        const newX = Math.max(scrollDistance, Math.min(0, currentX - delta));
+        const newX = Math.max(minX, Math.min(maxX, currentX - delta));
         x.set(newX);
       }
     };
@@ -245,40 +248,53 @@ export const EventTimeline = ({ events, className = '' }) => {
     return () => {
       container.removeEventListener('wheel', onWheel);
     };
-  }, [scrollDistance, x]);
+  }, [minX, maxX, x]);
 
-  // Calculate the horizontal scroll distance
+  // Calculate the horizontal scroll limits
   useEffect(() => {
     if (!trackRef.current || isMobile) return;
 
-    const calculateDistance = () => {
+    const calculateLimits = () => {
+      const firstCard = cardRefs.current[0];
       const lastIndex = events.length - 1;
       const lastCard = cardRefs.current[lastIndex];
 
-      if (!lastCard) return;
+      if (!firstCard || !lastCard) return;
 
       const viewportCenter = window.innerWidth / 2;
-      const cardRect = lastCard.getBoundingClientRect();
-      const cardCenter = cardRect.left + cardRect.width / 2;
       const currentX = x.get();
 
-      // Calculate the exact x value needed to center the last card
-      // Target = CurrentX + (DesiredPosition - CurrentPosition)
-      const targetX = currentX + (viewportCenter - cardCenter);
+      // Get current positions
+      const firstRect = firstCard.getBoundingClientRect();
+      const lastRect = lastCard.getBoundingClientRect();
 
-      // Clamp to ensure we don't scroll past 0 (right side)
-      setScrollDistance(Math.min(0, targetX));
+      const firstCenter = firstRect.left + firstRect.width / 2;
+      const lastCenter = lastRect.left + lastRect.width / 2;
+
+      // Calculate target x values to center cards
+      // targetX = currentX + (desiredPosition - currentPosition)
+      const targetXFirst = currentX + (viewportCenter - firstCenter);
+      const targetXLast = currentX + (viewportCenter - lastCenter);
+
+      setMinX(targetXLast);
+      setMaxX(targetXFirst);
+
+      // If first time calculating, set x to maxX to center the first card
+      if (!isCalculated) {
+        x.set(targetXFirst);
+        setIsCalculated(true);
+      }
     };
 
-    // Recalculate initially and on resize
-    const timer = setTimeout(calculateDistance, 100);
-    window.addEventListener('resize', calculateDistance);
+    // Recalculate slightly after mount and on resize
+    const timer = setTimeout(calculateLimits, 150);
+    window.addEventListener('resize', calculateLimits);
 
     return () => {
-      window.removeEventListener('resize', calculateDistance);
+      window.removeEventListener('resize', calculateLimits);
       clearTimeout(timer);
     };
-  }, [events.length, isMobile, x]);
+  }, [events.length, isMobile, x, isCalculated]);
 
 
 
@@ -439,7 +455,7 @@ export const EventTimeline = ({ events, className = '' }) => {
               className="flex items-center gap-4 px-[50vw]"
               style={{ x, position: 'relative', transform: 'translateZ(0)' }}
               drag="x"
-              dragConstraints={{ left: scrollDistance, right: 0 }}
+              dragConstraints={{ left: minX, right: maxX }}
               dragElastic={0}
               whileTap={{ cursor: "grabbing" }}
             >
