@@ -79,68 +79,59 @@ export const EventTimeline = ({ events, className = '' }) => {
   const handleJumpToIndex = (index) => {
     if (!events.length) return;
 
-    // Update selected index immediately for highlight / timeline window
+    // Update selected index immediately
     setSelectedIndex(index);
 
-    // On mobile, scroll directly to the card
-    if (isMobile && cardRefs.current[index]) {
-      cardRefs.current[index].scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-      return;
-    }
-
-    // On desktop, animate the timeline to center that card
-    if (scrollDistance < 0 && cardRefs.current[index]) {
-      const card = cardRefs.current[index];
-      const cardRect = card.getBoundingClientRect();
-      const currentX = x.get();
-      const viewportCenter = window.innerWidth / 2;
-      const cardCenter = cardRect.left + cardRect.width / 2;
-      const shift = viewportCenter - cardCenter;
-
-      const targetX = Math.max(scrollDistance, Math.min(0, currentX + shift));
-
-      animate(x, targetX, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
-    }
-  };
-
-  const handleJumpToDate = (date) => {
-    // Set the selected date
-    setSelectedDate(date);
-
-    // Find the first event with this date
-    const firstEventIndex = events.findIndex(event => event.date === date);
-    if (firstEventIndex !== -1) {
-      // Update selected index
-      setSelectedIndex(firstEventIndex);
-
-      // On mobile, scroll directly to the card
-      if (isMobile && cardRefs.current[firstEventIndex]) {
-        cardRefs.current[firstEventIndex].scrollIntoView({
+    // Give state updates a moment before scrolling
+    setTimeout(() => {
+      if (isMobile && cardRefs.current[index]) {
+        cardRefs.current[index].scrollIntoView({
           behavior: 'smooth',
           block: 'center',
         });
-        return;
-      }
-
-      // On desktop, animate the timeline to center that card and sync scrollbar
-      if (scrollDistance < 0 && cardRefs.current[firstEventIndex]) {
-        const card = cardRefs.current[firstEventIndex];
+      } else if (scrollDistance < 0 && cardRefs.current[index]) {
+        // Desktop horizontal centering
+        const card = cardRefs.current[index];
         const cardRect = card.getBoundingClientRect();
         const currentX = x.get();
         const viewportCenter = window.innerWidth / 2;
         const cardCenter = cardRect.left + cardRect.width / 2;
         const shift = viewportCenter - cardCenter;
-
-        // Calculate new position
         const targetX = Math.max(scrollDistance, Math.min(0, currentX + shift));
 
         animate(x, targetX, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
-
-
       }
+    }, 50);
+  };
+
+  const handleJumpToDate = (date) => {
+    // Set the selected date and index
+    setSelectedDate(date);
+    const firstEventIndex = events.findIndex(event => event.date === date);
+
+    if (firstEventIndex !== -1) {
+      setSelectedIndex(firstEventIndex);
+
+      // Give state updates a moment before scrolling
+      setTimeout(() => {
+        if (isMobile && cardRefs.current[firstEventIndex]) {
+          cardRefs.current[firstEventIndex].scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        } else if (scrollDistance < 0 && cardRefs.current[firstEventIndex]) {
+          // Desktop horizontal scrolling
+          const card = cardRefs.current[firstEventIndex];
+          const cardRect = card.getBoundingClientRect();
+          const currentX = x.get();
+          const viewportCenter = window.innerWidth / 2;
+          const cardCenter = cardRect.left + cardRect.width / 2;
+          const shift = viewportCenter - cardCenter;
+          const targetX = Math.max(scrollDistance, Math.min(0, currentX + shift));
+
+          animate(x, targetX, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
+        }
+      }, 50);
     }
   };
 
@@ -261,17 +252,33 @@ export const EventTimeline = ({ events, className = '' }) => {
     if (!trackRef.current || isMobile) return;
 
     const calculateDistance = () => {
-      const trackWidth = trackRef.current?.scrollWidth || 0;
-      const viewportWidth = window.innerWidth;
-      // Add extra padding (one full viewport width) to ensure the last card can definitely reach the center
-      // This compensates for browsers sometimes ignoring right-padding in scrollWidth calculations
-      setScrollDistance(-(trackWidth - viewportWidth + viewportWidth));
+      const lastIndex = events.length - 1;
+      const lastCard = cardRefs.current[lastIndex];
+
+      if (!lastCard) return;
+
+      const viewportCenter = window.innerWidth / 2;
+      const cardRect = lastCard.getBoundingClientRect();
+      const cardCenter = cardRect.left + cardRect.width / 2;
+      const currentX = x.get();
+
+      // Calculate the exact x value needed to center the last card
+      // Target = CurrentX + (DesiredPosition - CurrentPosition)
+      const targetX = currentX + (viewportCenter - cardCenter);
+
+      // Clamp to ensure we don't scroll past 0 (right side)
+      setScrollDistance(Math.min(0, targetX));
     };
 
-    calculateDistance();
+    // Recalculate initially and on resize
+    const timer = setTimeout(calculateDistance, 100);
     window.addEventListener('resize', calculateDistance);
-    return () => window.removeEventListener('resize', calculateDistance);
-  }, [events.length, isMobile]);
+
+    return () => {
+      window.removeEventListener('resize', calculateDistance);
+      clearTimeout(timer);
+    };
+  }, [events.length, isMobile, x]);
 
 
 
@@ -334,7 +341,7 @@ export const EventTimeline = ({ events, className = '' }) => {
             {/* Vertical connector line */}
             <div className="absolute left-4 top-0 bottom-0 w-[2px] bg-gradient-to-b from-red-500/60 via-red-500/40 to-red-500/20 st-line-glow" />
 
-            <div className="space-y-8">
+            <div className="space-y-32">
               {events.map((event, index) => (
                 <div key={event.id} className="relative pl-12">
                   {/* Dot */}
@@ -349,6 +356,7 @@ export const EventTimeline = ({ events, className = '' }) => {
                     isActive={index === activeIndex}
                     isPast={index < activeIndex}
                     isFuture={index > activeIndex}
+                    isMobile={isMobile}
                   />
                 </div>
               ))}
@@ -432,7 +440,7 @@ export const EventTimeline = ({ events, className = '' }) => {
               style={{ x, position: 'relative', transform: 'translateZ(0)' }}
               drag="x"
               dragConstraints={{ left: scrollDistance, right: 0 }}
-              dragElastic={0.1}
+              dragElastic={0}
               whileTap={{ cursor: "grabbing" }}
             >
               {events.map((event, index) => (
@@ -450,6 +458,7 @@ export const EventTimeline = ({ events, className = '' }) => {
                     isActive={index === activeIndex && isCentered}
                     isPast={index < selectedIndex}
                     isFuture={index > selectedIndex}
+                    isMobile={isMobile}
                   />
                 </div>
               ))}

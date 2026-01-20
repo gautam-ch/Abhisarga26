@@ -1,64 +1,79 @@
 "use client";
 
-import { forwardRef, useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { forwardRef, useState, useEffect, useRef, useMemo, useImperativeHandle } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 const demogorgonHandLeft = '/demogorgon-hand-left.png';
 const demogorgonHandRight = '/demogorgon-hand-right.png';
 
 // Fire spark component
-const FireSpark = ({ delay, left }) => (
+const FireSpark = ({ delay, left, small }) => (
   <motion.div
     initial={{ y: 0, opacity: 1, scaleY: 1, scaleX: 1 }}
     animate={{
-      y: -180 - Math.random() * 80,
+      y: small ? (-70 - Math.random() * 40) : (-180 - Math.random() * 80),
       x: (Math.random() - 0.5) * 30,
-      opacity: [1, 0.8, 0],
-      scaleY: [1, 3, 5],
-      scaleX: [1, 0.8, 0.4]
+      opacity: [1, 0.9, 0],
+      scaleY: small ? [1, 2, 2.5] : [1, 3, 5],
+      scaleX: small ? [0.7, 0.5, 0.1] : [1, 0.8, 0.4]
     }}
     transition={{
-      duration: 3.0 + Math.random() * 1.5,
+      duration: small ? (1.8 + Math.random() * 1.0) : (3.0 + Math.random() * 1.5),
       delay,
-      ease: 'easeOut'
+      ease: [0.23, 1, 0.32, 1] // Smoother cubic-bezier easing
     }}
-    className="absolute w-1 h-3 rounded-full"
+    className="absolute w-1 h-2 md:h-3 rounded-full"
     style={{
       left: `${left}%`,
       bottom: '100%',
       background: `radial-gradient(ellipse at center, #ff6b35, #ff4500, transparent)`,
-      boxShadow: '0 0 4px #ff6b35, 0 0 8px #ff4500, 0 0 12px #ff2200',
+      boxShadow: small ? '0 0 2px #ff6b35, 0 0 4px #ff4500' : '0 0 4px #ff6b35, 0 0 8px #ff4500, 0 0 12px #ff2200',
       transformOrigin: 'bottom center',
+      willChange: 'transform, opacity',
     }}
   />
 );
 
-export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFuture, onHoverChange }, ref) => {
+export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFuture, onHoverChange, isMobile }, ref) => {
   const [isHovered, setIsHovered] = useState(false);
   const [sparks, setSparks] = useState([]);
   const sparkIdRef = useRef(0);
+  const cardRef = useRef(null);
 
-  // Generate continuous sparks when active (center card) or hovered
+  // Expose the DOM element to the parent ref
+  useImperativeHandle(ref, () => cardRef.current);
+
+  // Only animate if in view to save resources, especially on mobile
+  const isInView = useInView(cardRef, { margin: "100px 0px 100px 0px" });
+
+  // Generate continuous sparks when active (center card) or hovered (ONLY if in view and NOT mobile)
   useEffect(() => {
-    if (!isActive && !isHovered) {
+    if (isMobile || !isInView || (!isActive && !isHovered)) {
       setSparks([]);
       return;
     }
 
+    // Smoother generation: more frequent but fewer per batch
+    const intervalTime = 40;
+    const sparkCount = 5;
+
     const interval = setInterval(() => {
-      const sparkCount = isActive && isHovered ? 12 : 8; // More sparks when both active and hovered
       const newSparks = Array.from({ length: sparkCount }, () => ({
         id: sparkIdRef.current++,
-        delay: Math.random() * 0.05,
+        delay: Math.random() * 0.08,
         left: 5 + Math.random() * 90,
       }));
 
-      setSparks(prev => [...prev.slice(-40), ...newSparks]);
-    }, isActive && isHovered ? 40 : 50); // Faster sparks when both active and hovered
+      setSparks(prev => {
+        const limit = 50;
+        return [...prev.slice(-limit), ...newSparks];
+      });
+    }, intervalTime);
 
     return () => clearInterval(interval);
-  }, [isActive, isHovered]);
+  }, [isActive, isHovered, isMobile, isInView]);
 
   const cardVariants = {
+    // ... (keep cardVariants same)
     hidden: {
       opacity: 0,
       y: 50,
@@ -89,7 +104,7 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
 
   return (
     <motion.div
-      ref={ref}
+      ref={cardRef}
       variants={cardVariants}
       initial="hidden"
       whileInView="visible"
@@ -98,8 +113,8 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
         relative flex-shrink-0 w-[280px] md:w-[320px] lg:w-[380px]
         transition-all duration-700 ease-out
         ${isActive ? 'scale-105 z-20' : 'scale-100 z-10'}
-        ${isPast ? 'opacity-60' : ''}
-        ${isFuture && !isActive ? 'opacity-70 blur-[1px]' : ''}
+        ${isPast && !isMobile ? 'opacity-60' : ''}
+        ${isFuture && !isActive && !isMobile ? 'opacity-70 blur-[1px]' : ''}
       `}
       data-is-card="true"
       onMouseEnter={() => {
@@ -111,9 +126,9 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
         if (onHoverChange) onHoverChange(false);
       }}
     >
-      {/* Demogorgon Hands for Active Card (only when not hovered) */}
+      {/* Demogorgon Hands for Active Card or Mobile (only when not hovered or active on desktop) */}
       <AnimatePresence>
-        {(isActive) && (
+        {(isActive || isMobile) && (
           <>
             {/* Right Hand */}
             <motion.div
@@ -149,7 +164,7 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
 
       {/* Blood Horror Effect for Non-Active Card Hover */}
       <AnimatePresence>
-        {isHovered && !isActive && (
+        {isHovered && !isActive && !isMobile && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
             {bloodDrips.map((drip) => (
               <motion.div
@@ -195,12 +210,12 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
         )}
       </AnimatePresence>
 
-      {/* Fire Sparks Effect for Active Card or on Hover */}
+      {/* Fire Sparks Effect for Active Card or on Hover (NOT on mobile) */}
       <AnimatePresence>
-        {(isActive || isHovered) && (
+        {(isActive || isHovered) && !isMobile && (
           <div className="absolute inset-x-0 top-0 h-20 pointer-events-none z-40 overflow-visible">
             {sparks.map((spark) => (
-              <FireSpark key={spark.id} delay={spark.delay} left={spark.left} />
+              <FireSpark key={spark.id} delay={spark.delay} left={spark.left} small={isMobile} />
             ))}
           </div>
         )}
@@ -213,7 +228,7 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
           bg-black/60 backdrop-blur-sm
           border border-red-500/30
           transition-all duration-500 ease-out
-          ${isActive ? 'st-card-glow-active border-red-500/60' : 'st-card-glow'}
+          ${(isActive || isMobile) ? 'st-card-glow-active border-red-500/60' : 'st-card-glow'}
           hover:border-red-500/50 hover:bg-black/80
           group cursor-grab active:cursor-grabbing
           overflow-hidden
@@ -235,7 +250,7 @@ export const TimelineCard = forwardRef(({ event, index, isActive, isPast, isFutu
         <h3 className={`
           st-title text-xl md:text-2xl font-bold mb-3 text-white
           transition-all duration-300
-          ${isActive ? 'st-glow' : ''}
+          ${(isActive || isMobile) ? 'st-glow' : ''}
           group-hover:st-glow
         `}>
           {event.title}
