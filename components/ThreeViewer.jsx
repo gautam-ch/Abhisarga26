@@ -67,7 +67,7 @@ export default function ThreeViewer({ model }) {
         meshRef = mesh;
 
         // gentle default scale
-        mesh.scale.set(2.8, 2.8, 2.8);
+        mesh.scale.set(4.2, 4.2, 4.2);
         mesh.rotation.y = Math.PI;
 
         // center model and adjust camera based on bounding box
@@ -81,7 +81,7 @@ export default function ThreeViewer({ model }) {
         mesh.position.z -= center.z;
 
         // raise slightly so it's not clipping into floor
-        mesh.position.y += size.y * 0.5;
+        mesh.position.y += size.y * 0.25;
 
         scene.add(mesh);
 
