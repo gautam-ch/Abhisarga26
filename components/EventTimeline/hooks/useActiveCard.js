@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 export const useActiveCard = (cardRefs, totalCards, xMotionValue = null) => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeState, setActiveState] = useState({ index: 0, isCentered: true });
 
   useEffect(() => {
     const updateActiveCard = () => {
@@ -14,6 +14,8 @@ export const useActiveCard = (cardRefs, totalCards, xMotionValue = null) => {
 
       let bestIndex = 0;
       let bestScore = -Infinity;
+      let bestDistance = Infinity;
+      let activeCardWidth = 0;
 
       cardRefs.current.forEach((card, index) => {
         if (!card) return;
@@ -39,10 +41,19 @@ export const useActiveCard = (cardRefs, totalCards, xMotionValue = null) => {
         if (score > bestScore) {
           bestScore = score;
           bestIndex = index;
+          bestDistance = distanceFromCenter;
+          activeCardWidth = cardRect.width;
         }
       });
 
-      setActiveIndex(bestIndex);
+      // Consider centered if the distance from center is less than 1/3 of the card width
+      // This ensures the card is significantly dominating the center view
+      const isCentered = activeCardWidth > 0 && bestDistance < (activeCardWidth / 3);
+
+      setActiveState(prev => {
+        if (prev.index === bestIndex && prev.isCentered === isCentered) return prev;
+        return { index: bestIndex, isCentered };
+      });
     };
 
     // Initial check
@@ -80,6 +91,6 @@ export const useActiveCard = (cardRefs, totalCards, xMotionValue = null) => {
     };
   }, [cardRefs, totalCards, xMotionValue]);
 
-  return activeIndex;
+  return activeState;
 };
 

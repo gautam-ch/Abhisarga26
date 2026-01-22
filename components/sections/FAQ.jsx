@@ -50,7 +50,7 @@ export default function FAQ() {
           {faqData.map((faq, index) => (
             <motion.div
               key={index}
-              className="border border-white/10 bg-black/20 backdrop-blur-sm cursor-pointer"
+              className="border border-white/10 bg-black/20 cursor-pointer"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.02, borderColor: "rgba(255, 37, 70, 0.3)" }}
@@ -62,7 +62,7 @@ export default function FAQ() {
             >
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-white/5 transition-colors duration-300"
+                className="w-full px-6 py-4 text-left flex items-center justify-between transition-colors duration-300"
               >
                 <span className="text-lg font-medium text-white">{faq.question}</span>
                 <motion.span
@@ -87,9 +87,10 @@ export default function FAQ() {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{
-                      duration: 0.4,
-                      ease: [0.4, 0.0, 0.2, 1], // Custom easing for smoother motion
-                      opacity: { duration: 0.3 }
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30,
+                      opacity: { duration: 0.2 }
                     }}
                     className="overflow-hidden"
                   >

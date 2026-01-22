@@ -23,7 +23,7 @@
   let sleepStartTime = null;
   let tooltipAutoShowInterval = null;
 
-  const nekoSpeed = 10;
+  const nekoSpeed = 26;
   const spriteSets = {
     idle: [[-3, -3]],
     alert: [[-7, -3]],

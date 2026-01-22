@@ -1,20 +1,17 @@
 import PortalPulse from "../components/PortalPulse"
-import Hero from "../components/sections/Hero"
-import About from "../components/sections/About"
-import Events from "../components/sections/Events"
 import EventTimelineSection from "../components/sections/EventTimeline"
-import Team from "../components/sections/Team"
 import FAQ from "../components/sections/FAQ"
-
+import Parallax from '../components/Parallax'
+import Hero from '../components/Hero'
+import AboutUs from '../components/AboutUs'
 export default function Page() {
   return (
     <>
       <PortalPulse />
+      <Parallax />
       <Hero />
-      <About />
-      <Events />
+      <AboutUs />
       <EventTimelineSection />
-      <Team />
       <FAQ />
     </>
   )
