@@ -2,6 +2,37 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+
+
+/* Brian James Normal */
+@font-face {
+  font-family: "BrianJames";
+  src: url("/fonts/BrianJames.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Brian James Contour */
+@font-face {
+  font-family: "BrianJamesContour";
+  src: url("/fonts/BrianJames-Contour.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "BrianJames", sans-serif;
+  margin: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 44, 54, 0.15), transparent 45%),
+    radial-gradient(circle at 80% 30%, rgba(118, 0, 224, 0.1), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(255, 44, 54, 0.1), transparent 35%),
+    var(--upside-bg);
+  color: var(--upside-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+
 :root {
   color-scheme: dark;
   --upside-bg: #030204;
@@ -15,26 +46,13 @@
   --noise: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSJibGFjayIvPgo8cmVjdCB4PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSJyZ2JhKDI1NSwyNSwyNSwwLjEyKSIvPgo8cmVjdCB4PSIyIiB5PSI4IiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNSwyNSwwLjA4KSIvPgo8cmVjdCB4PSIxNiIgeT0iMTMiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNSwwLjA5KSIvPgo8cmVjdCB4PSI3IiB5PSI0IiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJyZ2JhKDI1NSwyNSwyNSwwLjA0KSIvPgo8L3N2Zz4=");
 }
 
-* {
-  font-family: "Space Grotesk", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  box-sizing: border-box;
-}
 
 html {
   scroll-behavior: smooth;
   background: var(--upside-bg);
 }
 
-body {
-  margin: 0;
-  background: radial-gradient(circle at 20% 20%, rgba(255, 44, 54, 0.15), transparent 45%),
-    radial-gradient(circle at 80% 30%, rgba(118, 0, 224, 0.1), transparent 40%),
-    radial-gradient(circle at 50% 80%, rgba(255, 44, 54, 0.1), transparent 35%),
-    var(--upside-bg);
-  color: var(--upside-text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+
 
 body::after {
   content: "";
@@ -69,9 +87,9 @@ section {
 }
 
 h1,
- h2,
- h3,
- h4 {
+h2,
+h3,
+h4 {
   font-family: "Cinzel Decorative", "Cormorant Garamond", serif;
   letter-spacing: 0.08em;
 }
@@ -90,6 +108,7 @@ button {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -97,9 +116,12 @@ button {
 }
 
 @keyframes glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(255, 37, 70, 0.4);
   }
+
   50% {
     box-shadow: 0 0 40px rgba(255, 37, 70, 0.7);
   }
@@ -110,6 +132,7 @@ button {
     transform: scale(1);
     opacity: 1;
   }
+
   100% {
     transform: scale(2);
     opacity: 0;
