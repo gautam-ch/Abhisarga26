@@ -52,7 +52,68 @@ html {
   background: var(--upside-bg);
 }
 
+/* ============================================
+   CUSTOM SCROLLBAR - Tentacle Theme
+   ============================================ */
 
+/* Scrollbar width */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+/* Scrollbar Track (background) - transparent */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Remove scrollbar arrows - StackOverflow Solution */
+/* Source: https://stackoverflow.com/a/76834529 by Atlas-Pio (CC BY-SA 4.0) */
+::-webkit-scrollbar-button {
+  height: 0;
+  width: 0;
+}
+
+/* Scrollbar Thumb - Tentacle styled */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    #660000 0%,
+    #b30000 25%,
+    #660000 50%,
+    #b30000 75%,
+    #660000 100%
+  );
+  border-radius: 6px;
+  border: 1px solid rgba(179, 0, 0, 0.5);
+  box-shadow: 
+    0 0 10px rgba(255, 37, 70, 0.6),
+    0 0 20px rgba(179, 0, 0, 0.4),
+    inset -2px 0 4px rgba(0, 0, 0, 0.8),
+    inset 2px 0 4px rgba(255, 37, 70, 0.3);
+}
+
+/* Scrollbar Thumb on hover - glowing effect */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #8b0000 0%,
+    #ff2546 25%,
+    #b30000 50%,
+    #ff2546 75%,
+    #8b0000 100%
+  );
+  box-shadow: 
+    0 0 15px rgba(255, 37, 70, 0.9),
+    0 0 25px rgba(179, 0, 0, 0.6),
+    inset -2px 0 5px rgba(0, 0, 0, 0.9),
+    inset 2px 0 5px rgba(255, 37, 70, 0.5);
+}
+
+/* Firefox fallback */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b30000 transparent;
+}
 
 body::after {
   content: "";
@@ -223,4 +284,81 @@ button {
     0 0 50px rgba(255, 37, 70, 0.3),
     0 0 80px rgba(255, 37, 70, 0.15),
     inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Stranger Things Tentacle Underline Animation */
+.tentacle-underline {
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 16px;
+  overflow: visible;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+.tentacle-underline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='16' viewBox='0 0 200 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3C!-- Main tentacle body --%3E%3Cpath d='M0 8 C10 5, 15 4, 25 6 C35 8, 40 10, 50 9 C60 8, 65 5, 75 7 C85 9, 90 11, 100 10 C110 9, 115 6, 125 8 C135 10, 140 12, 150 10 C160 8, 170 6, 180 8 C190 10, 195 11, 200 10' stroke='%23b30000' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.9'/%3E%3C!-- Tentacle highlight --%3E%3Cpath d='M0 7 C10 4.5, 15 3.5, 25 5.5 C35 7.5, 40 9.5, 50 8.5 C60 7.5, 65 4.5, 75 6.5 C85 8.5, 90 10.5, 100 9.5 C110 8.5, 115 5.5, 125 7.5 C135 9.5, 140 11.5, 150 9.5 C160 7.5, 170 5.5, 180 7.5 C190 9.5, 195 10.5, 200 9.5' stroke='%23ff2546' stroke-width='1.5' fill='none' stroke-linecap='round' opacity='0.7'/%3E%3C!-- Bottom edge --%3E%3Cpath d='M0 9 C10 5.5, 15 4.5, 25 6.5 C35 8.5, 40 10.5, 50 9.5 C60 8.5, 65 5.5, 75 7.5 C85 9.5, 90 11.5, 100 10.5 C110 9.5, 115 6.5, 125 8.5 C135 10.5, 140 12.5, 150 10.5 C160 8.5, 170 6.5, 180 8.5 C190 10.5, 195 11.5, 200 10.5' stroke='%23660000' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.6'/%3E%3C!-- Suction cups --%3E%3Cellipse cx='12' cy='9' rx='2.5' ry='2' fill='%23b30000' opacity='0.7'/%3E%3Cellipse cx='12' cy='9' rx='1.5' ry='1.2' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='28' cy='7' rx='2.2' ry='1.8' fill='%23b30000' opacity='0.65'/%3E%3Cellipse cx='28' cy='7' rx='1.3' ry='1' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='45' cy='10' rx='2.8' ry='2.2' fill='%23b30000' opacity='0.75'/%3E%3Cellipse cx='45' cy='10' rx='1.6' ry='1.3' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='58' cy='8' rx='2.3' ry='1.9' fill='%23b30000' opacity='0.7'/%3E%3Cellipse cx='58' cy='8' rx='1.4' ry='1.1' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='72' cy='6' rx='2.6' ry='2.1' fill='%23b30000' opacity='0.68'/%3E%3Cellipse cx='72' cy='6' rx='1.5' ry='1.2' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='88' cy='10' rx='2.4' ry='2' fill='%23b30000' opacity='0.72'/%3E%3Cellipse cx='88' cy='10' rx='1.4' ry='1.2' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='105' cy='9' rx='2.7' ry='2.2' fill='%23b30000' opacity='0.7'/%3E%3Cellipse cx='105' cy='9' rx='1.6' ry='1.3' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='118' cy='7' rx='2.2' ry='1.8' fill='%23b30000' opacity='0.68'/%3E%3Cellipse cx='118' cy='7' rx='1.3' ry='1.1' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='135' cy='11' rx='2.5' ry='2.1' fill='%23b30000' opacity='0.73'/%3E%3Cellipse cx='135' cy='11' rx='1.5' ry='1.2' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='148' cy='9' rx='2.3' ry='1.9' fill='%23b30000' opacity='0.7'/%3E%3Cellipse cx='148' cy='9' rx='1.4' ry='1.1' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='165' cy='7' rx='2.6' ry='2.1' fill='%23b30000' opacity='0.69'/%3E%3Cellipse cx='165' cy='7' rx='1.5' ry='1.2' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='178' cy='9' rx='2.4' ry='2' fill='%23b30000' opacity='0.71'/%3E%3Cellipse cx='178' cy='9' rx='1.4' ry='1.2' fill='%23660000' opacity='0.8'/%3E%3Cellipse cx='192' cy='10' rx='2.3' ry='1.9' fill='%23b30000' opacity='0.7'/%3E%3Cellipse cx='192' cy='10' rx='1.3' ry='1.1' fill='%23660000' opacity='0.8'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: repeat-x;
+  filter: drop-shadow(0 0 5px rgba(255, 37, 70, 0.9)) 
+          drop-shadow(0 0 10px rgba(179, 0, 0, 0.7))
+          drop-shadow(0 0 15px rgba(255, 37, 70, 0.5));
+  animation: tentacle-wave 2.5s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.group:hover .tentacle-underline {
+  width: 100%;
+}
+
+.group:hover .tentacle-underline::before {
+  animation-play-state: running;
+}
+
+@keyframes tentacle-wave {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+    filter: drop-shadow(0 0 5px rgba(255, 37, 70, 0.9)) 
+            drop-shadow(0 0 10px rgba(179, 0, 0, 0.7))
+            drop-shadow(0 0 15px rgba(255, 37, 70, 0.5));
+  }
+  15% {
+    transform: translateY(-1.5px) scaleY(1.08);
+    filter: drop-shadow(0 0 7px rgba(255, 37, 70, 1)) 
+            drop-shadow(0 0 14px rgba(179, 0, 0, 0.9))
+            drop-shadow(0 0 20px rgba(255, 37, 70, 0.7));
+  }
+  35% {
+    transform: translateY(1px) scaleY(0.95);
+    filter: drop-shadow(0 0 5px rgba(255, 37, 70, 0.9)) 
+            drop-shadow(0 0 10px rgba(179, 0, 0, 0.7))
+            drop-shadow(0 0 15px rgba(255, 37, 70, 0.5));
+  }
+  50% {
+    transform: translateY(-0.8px) scaleY(1.05);
+    filter: drop-shadow(0 0 6px rgba(255, 37, 70, 0.95)) 
+            drop-shadow(0 0 12px rgba(179, 0, 0, 0.8))
+            drop-shadow(0 0 18px rgba(255, 37, 70, 0.6));
+  }
+  70% {
+    transform: translateY(1.2px) scaleY(0.92);
+    filter: drop-shadow(0 0 5px rgba(255, 37, 70, 0.9)) 
+            drop-shadow(0 0 10px rgba(179, 0, 0, 0.7))
+            drop-shadow(0 0 15px rgba(255, 37, 70, 0.5));
+  }
+  85% {
+    transform: translateY(-0.5px) scaleY(1.03);
+    filter: drop-shadow(0 0 6px rgba(255, 37, 70, 0.95)) 
+            drop-shadow(0 0 11px rgba(179, 0, 0, 0.75))
+            drop-shadow(0 0 17px rgba(255, 37, 70, 0.55));
+  }
 }

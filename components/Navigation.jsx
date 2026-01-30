@@ -58,10 +58,11 @@ export default function Navigation() {
             <Link 
               key={link.href} 
               href={link.href} 
-              className="text-white/80 hover:text-white transition-all duration-300 hover:scale-105 relative group"
+              className="text-white/80 hover:text-white transition-all duration-300 hover:scale-105 relative group pb-2"
             >
               {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white/80 transition-all duration-300 group-hover:w-full" />
+              {/* Tentacle underline effect */}
+              <span className="tentacle-underline" />
             </Link>
           ))}
         </nav>
