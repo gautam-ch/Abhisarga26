@@ -27,6 +27,15 @@ export default function Navigation() {
     return () => window.removeEventListener("scroll", listener)
   }, [])
 
+  useEffect(() => {
+    if (!open) return
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [open])
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
@@ -80,26 +89,40 @@ export default function Navigation() {
       
       <AnimatePresence>
         {open && (
-          <motion.nav
-            className="md:hidden fixed inset-0 z-40 backdrop-blur-xl bg-black/95 flex flex-col items-center justify-center"
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+          <motion.div
+            className="md:hidden fixed inset-0 z-40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
-            <div className="flex flex-col gap-8 text-center">
-              {links.map((link) => (
-                <Link 
-                  key={link.href} 
-                  href={link.href} 
-                  className="text-2xl text-white/90 hover:text-white uppercase tracking-[0.3em] font-light transition-all duration-300 hover:scale-105" 
-                  onClick={() => setOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </motion.nav>
+            <button
+              type="button"
+              aria-label="Close menu"
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setOpen(false)}
+            />
+            <motion.nav
+              className="absolute right-0 top-0 h-dvh w-1/2 max-w-60 bg-black/95 border-l border-white/10 px-6 pt-24 pb-10 overflow-y-auto"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+            >
+              <div className="flex flex-col gap-3 text-left">
+                {links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-base sm:text-lg text-white/90 hover:text-white uppercase tracking-[0.12em] font-light transition-all duration-300 hover:translate-x-1"
+                    onClick={() => setOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </motion.nav>
+          </motion.div>
         )}
       </AnimatePresence>
     </header>
