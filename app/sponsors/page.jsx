@@ -1,3 +1,15 @@
+"use client";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+
+// Lazy load the heavy WebGL Prism component
+const Prism = dynamic(() => import("../../components/background/Prism"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-blue-900/30 animate-pulse" />
+  ),
+});
+
 const sponsorCards = [
   {
     name: "Starcourt Mall",
@@ -67,13 +79,29 @@ export default function SponsorsPage() {
         </header>
 
         <div className="grid gap-8">
-          <div className="relative rounded-xl border-[12px] border-[#2e1a10] bg-cork p-8 shadow-[inset_0_0_60px_rgba(0,0,0,0.8),0_20px_40px_rgba(0,0,0,0.5)]">
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 rotate-1 bg-[#ffeb3b] px-6 py-3 shadow-md">
+          <div className="relative rounded-xl p-8">
+            <div className="absolute inset-0 z-0">
+              <Prism
+                animationType="rotate"
+                timeScale={0.5}
+                height={3.5}
+                baseWidth={5.5}
+                scale={3.6}
+                hueShift={0}
+                colorFrequency={1}
+                noise={0}
+                glow={1}
+                suspendWhenOffscreen={true}
+                quality={0.5}   // Reduce shader steps from 100 to 50
+                maxFps={30}     // Limit to 30 FPS for better performance
+              />
+            </div>
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 rotate-1 bg-[#ffeb3b] px-6 py-3 shadow-md z-[9999]">
               <div className="absolute -top-3 left-1/2 h-4 w-4 -translate-x-1/2 rounded-full bg-red-600 shadow-sm"></div>
-              <p className="font-display text-xl font-bold text-black">Supporters of Hawkins</p>
+              <p className="font-display text-xl font-bold text-black relative z-10">Supporters of Hawkins</p>
             </div>
 
-            <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="relative z-10 mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {sponsorCards.map((card) => (
                 <div
                   key={card.name}
@@ -82,12 +110,16 @@ export default function SponsorsPage() {
                   <div className="pin"></div>
                   <div className="polaroid-shadow bg-white p-3 pb-12 transition-colors">
                     <div className="aspect-square w-full overflow-hidden bg-gray-900 grayscale transition-all duration-500 group-hover:grayscale-0">
-                      <div
-                        className="h-full w-full bg-cover bg-center"
-                        role="img"
-                        aria-label={card.alt}
-                        style={{ backgroundImage: `url('${card.image}')` }}
-                      ></div>
+                      <Image
+                        src={card.image}
+                        alt={card.alt}
+                        width={300}
+                        height={300}
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                        placeholder="blur"
+                        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHx0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAALCAAIAAoBAREA/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQAAPwBpAf/Z"
+                      />
                     </div>
                     <div className="absolute bottom-2 left-0 w-full text-center">
                       <p className="font-display text-lg font-bold text-gray-800">{card.name}</p>
