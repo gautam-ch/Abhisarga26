@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&family=VT323&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -100,6 +101,81 @@ a {
 
 button {
   font-family: inherit;
+}
+
+.font-display {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.font-terminal {
+  font-family: "VT323", monospace;
+}
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+}
+
+.bg-wood {
+  background-color: #221013;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.2) 0,
+    rgba(0, 0, 0, 0.2) 2px,
+    transparent 2px,
+    transparent 100px
+  );
+}
+
+.bg-cork {
+  background-color: #8b5a2b;
+  background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDSyws-l9POSAktUZZdPTdOdVUDCR_Sa62DMEKjiQmYaCu-0f4NTINZaMQH2gjtOA1YGuzEykXkaQO8t0IEt2AG6Cu8ps2OszbhnksgRROQTchKSeF8rFQNAvbFZy2uYRUk8NyGHuEypwe_9jUmXk8sSQTZB5oG8vDsCmUKmM_yK35V5us0zY7sxBAYQAwnFVDjc0H1M6iM-vaW06xYXgbK5XtiUwFpiPah5IDbUIxtgHPy2EIx2rmivg38J5KEK2dGw4hiD7TxrvHB");
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.neon-text-red {
+  text-shadow: 0 0 10px rgba(236, 19, 55, 0.7), 0 0 20px rgba(236, 19, 55, 0.5);
+}
+
+.polaroid-shadow {
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.pin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ff5e7a, #ec1337);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.pin::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 12px;
+  width: 4px;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  transform: skewX(45deg);
 }
 
 /* Cinematic Globe Animations */
