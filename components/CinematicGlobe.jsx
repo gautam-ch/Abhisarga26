@@ -497,7 +497,7 @@ export default function CinematicGlobe() {
   // Don't render Canvas until mounted (client-side only)
   if (!isMounted) {
     return (
-      <section ref={containerRef} className="relative min-h-screen bg-black">
+      <section ref={containerRef} className="relative min-h-screen bg-black overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
           <p className="text-white/50">Loading...</p>
         </div>
@@ -506,7 +506,7 @@ export default function CinematicGlobe() {
   }
 
   return (
-    <section ref={containerRef} className="relative min-h-screen bg-black">
+    <section ref={containerRef} className="relative min-h-screen bg-black overflow-hidden">
       {/* 3D Globe Scene */}
       <div 
         className="absolute inset-0"
