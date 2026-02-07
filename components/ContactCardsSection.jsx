@@ -59,13 +59,37 @@ const contacts = [
 // Card dimensions - Larger cards for better visibility
 const CARD_W = 220
 const CARD_H = 280
-const CARD_GAP_X = 350 // Horizontal gap
+const CARD_GAP_X = 280 // Reduced horizontal gap for iPad Pro
 const CARD_GAP_Y = 320 // Vertical gap
 
 export default function ContactCardsSection() {
   const sectionRef = useRef(null)
   const cardsRef = useRef([])
   const [copiedEmail, setCopiedEmail] = useState(null)
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024)
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Dynamic card gap calculation for responsive layout
+  const getResponsiveCardGap = () => {
+    // iPad Pro 12.9" is 1024px width
+    // iPad Pro 11" is 834px width
+    if (windowWidth >= 1440) {
+      return { x: 350, y: 320 } // Large desktop
+    } else if (windowWidth >= 1200) {
+      return { x: 300, y: 320 } // Desktop
+    } else if (windowWidth >= 1024) {
+      return { x: 250, y: 300 } // iPad Pro 12.9"
+    } else if (windowWidth >= 834) {
+      return { x: 220, y: 280 } // iPad Pro 11"
+    } else {
+      return { x: 280, y: 320 } // Default tablet
+    }
+  }
 
   const handleCopy = (email, e) => {
     e.stopPropagation()
@@ -128,6 +152,7 @@ export default function ContactCardsSection() {
 
   // 3x3 Grid Layout Calculation
   const getCardPosition = (index) => {
+    const gaps = getResponsiveCardGap()
     const row = Math.floor(index / 3) // 0 or 1
     const col = index % 3            // 0, 1, 2
     
@@ -135,8 +160,8 @@ export default function ContactCardsSection() {
     // Rows: 2 rows total. Center is 0.5. Offsets: -0.5, 0.5
     // Cols: 3 cols total. Center is 1. Offsets: -1, 0, 1
     
-    const x = (col - 1) * CARD_GAP_X
-    const y = (row - 0.5) * CARD_GAP_Y
+    const x = (col - 1) * gaps.x
+    const y = (row - 0.5) * gaps.y
     
     return { x, y }
   }
@@ -209,11 +234,13 @@ export default function ContactCardsSection() {
 
       {/* DESKTOP 3D LAYOUT (Hidden on small screens) */}
       <div 
-        className="hidden md:flex relative w-full h-200 items-center justify-center"
+        className="hidden md:flex relative w-full items-center justify-center overflow-x-hidden px-4"
         style={{ 
           perspective: "1200px", // Lower perspective for more dramatic 3D
           perspectiveOrigin: "center center",
           zIndex: 10,
+          minHeight: "800px",
+          maxWidth: "100vw",
         }}
       >
         {contacts.map((contact, index) => {

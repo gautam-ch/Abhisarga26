@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, animate } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { TimelineCard } from './TimelineCard';
 import { TimelineConnector } from './TimelineConnector';
 import { FogOverlay } from './FogOverlay';
@@ -46,17 +46,12 @@ export const EventTimeline = ({ events, className = '' }) => {
   const x = useMotionValue(0);
 
   // Motion value for scrollbar handle
-  // Smooth spring for horizontal movement with enhanced fluidity
-  const smoothX = useSpring(x, {
-    stiffness: 120,
-    damping: 25,
-    mass: 0.8,
-    restDelta: 0.001,
-  });
+  const targetX = useRef(x.get());
+  const isWheeling = useRef(false);
+  const wheelTimeout = useRef(null);
 
   const [isTouching, setIsTouching] = useState(false);
   const [touchStartX, setTouchStartX] = useState(0);
-  const [touchStartY, setTouchStartY] = useState(0);
 
   // Get active card based on center position (card visually in front)
   const { index: activeIndex, isCentered } = useActiveCard(cardRefs, events.length, x);
@@ -100,9 +95,10 @@ export const EventTimeline = ({ events, className = '' }) => {
         const viewportCenter = window.innerWidth / 2;
         const cardCenter = cardRect.left + cardRect.width / 2;
         const shift = viewportCenter - cardCenter;
-        const targetX = Math.max(minX, Math.min(maxX, currentX + shift));
+        const newTarget = Math.max(minX, Math.min(maxX, currentX + shift));
 
-        animate(x, targetX, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
+        targetX.current = newTarget;
+        animate(x, newTarget, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
       }
     }, 50);
   };
@@ -130,9 +126,10 @@ export const EventTimeline = ({ events, className = '' }) => {
           const viewportCenter = window.innerWidth / 2;
           const cardCenter = cardRect.left + cardRect.width / 2;
           const shift = viewportCenter - cardCenter;
-          const targetX = Math.max(minX, Math.min(maxX, currentX + shift));
+          const newTarget = Math.max(minX, Math.min(maxX, currentX + shift));
 
-          animate(x, targetX, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
+          targetX.current = newTarget;
+          animate(x, newTarget, { duration: 0.8, ease: [0.32, 0.72, 0, 1] });
         }
       }, 50);
     }
@@ -159,65 +156,7 @@ export const EventTimeline = ({ events, className = '' }) => {
   }, [selectedIndex, events.length, maxStart, visibleStart]);
 
   // Handle drag start
-  const handleMouseDown = (e) => {
-    if (!isHoveringTimeline) return;
 
-    setIsDragging(true);
-    setDragStart(e.clientX);
-    setIsGrabbing(true);
-
-    // Add global mouse event listeners for drag
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-
-  // Handle drag movement
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-
-    const deltaX = e.clientX - dragStart;
-    const currentX = x.get();
-    const newX = Math.max(minX, Math.min(maxX, currentX + deltaX));
-
-    x.set(newX);
-    setDragStart(e.clientX);
-  };
-
-  // Handle drag end
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setIsGrabbing(false);
-
-    // Remove global mouse event listeners
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-  };
-
-  // Touch event handlers for swipe scrolling (similar to mouse drag)
-  const handleTouchStart = (e) => {
-    if (isMobile) return; // Mobile already has native scrolling
-
-    setIsTouchDragging(true);
-    setTouchDragStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isTouchDragging || isMobile) return;
-
-    e.preventDefault(); // Prevent default scrolling
-
-    const touchX = e.touches[0].clientX;
-    const deltaX = touchX - touchDragStart;
-    const currentX = x.get();
-    const newX = Math.max(minX, Math.min(maxX, currentX + deltaX));
-
-    x.set(newX);
-    setTouchDragStart(touchX);
-  };
-
-  const handleTouchEnd = () => {
-    setIsTouchDragging(false);
-  };
 
   // Handle wheel for horizontal scrolling when hovering cards
   useEffect(() => {
@@ -233,12 +172,37 @@ export const EventTimeline = ({ events, className = '' }) => {
         e.preventDefault();
         e.stopPropagation();
 
-        const currentX = x.get();
+        // If we just started wheeling (or after a pause), sync target with current position
+        // This handles cases where dragging/momentum moved the x position
+        if (!isWheeling.current) {
+          targetX.current = x.get();
+          isWheeling.current = true;
+        }
+
+        // Clear existing timeout
+        if (wheelTimeout.current) {
+          clearTimeout(wheelTimeout.current);
+        }
+
+        // Set timeout to reset wheeling state
+        wheelTimeout.current = setTimeout(() => {
+          isWheeling.current = false;
+        }, 150);
+
         // Scroll Down (positive deltaY) -> Move Right to Left (decrease x)
-        // Smoothly and slowly: standard delta is too fast, reduce it
-        const delta = e.deltaY * 0.4;
-        const newX = Math.max(minX, Math.min(maxX, currentX - delta));
-        x.set(newX);
+        // Increased multiplier for more responsive feel with smoothing
+        const delta = e.deltaY * 1.5;
+        const newTarget = Math.max(minX, Math.min(maxX, targetX.current - delta));
+
+        targetX.current = newTarget;
+
+        // Animate to the new target
+        animate(x, newTarget, {
+          type: "spring",
+          stiffness: 150,
+          damping: 30,
+          mass: 0.6
+        });
       }
     };
 
@@ -247,6 +211,7 @@ export const EventTimeline = ({ events, className = '' }) => {
 
     return () => {
       container.removeEventListener('wheel', onWheel);
+      if (wheelTimeout.current) clearTimeout(wheelTimeout.current);
     };
   }, [minX, maxX, x]);
 
@@ -282,6 +247,7 @@ export const EventTimeline = ({ events, className = '' }) => {
       // If first time calculating, set x to maxX to center the first card
       if (!isCalculated) {
         x.set(targetXFirst);
+        targetX.current = targetXFirst;
         setIsCalculated(true);
       }
     };
@@ -457,6 +423,12 @@ export const EventTimeline = ({ events, className = '' }) => {
               drag="x"
               dragConstraints={{ left: minX, right: maxX }}
               dragElastic={0}
+              onDragStart={() => {
+                targetX.current = x.get();
+              }}
+              onDragEnd={() => {
+                targetX.current = x.get();
+              }}
               whileTap={{ cursor: "grabbing" }}
             >
               {events.map((event, index) => (

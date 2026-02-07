@@ -12,7 +12,7 @@ export default function Contact() {
   return (
     <>
       {/* First Section - Hero and Contact Cards */}
-      <div className="relative min-h-screen text-white overflow-hidden">
+      <div className="relative min-h-screen text-white overflow-x-hidden">
         {/* Dramatic Background Image */}
         <div className="absolute inset-0">
           <div 
@@ -31,7 +31,7 @@ export default function Contact() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,#ea580c_0%,transparent_40%)] opacity-20"></div>
         </div>
 
-        <div className="max-w-7xl mx-auto relative z-10 px-4 py-32">
+        <div className="max-w-7xl mx-auto relative z-10 px-4 py-20 md:py-32">
           {/* Guild Hall Hero */}
           <motion.div
             className="text-center mb-10 md:mb-20"
@@ -40,7 +40,7 @@ export default function Contact() {
             transition={{ duration: 1, ease: "easeOut" }}
           >
             <motion.h1
-              className="mt-20 md:mt-40 text-4xl sm:text-5xl md:text-7xl font-bold mb-6 bg-linear-to-r from-red-200 via-orange-300 to-red-200 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]"
+              className="mt-10 md:mt-20 text-4xl sm:text-5xl md:text-7xl font-bold mb-6 bg-linear-to-r from-red-200 via-orange-300 to-red-200 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, duration: 0.8 }}
@@ -60,7 +60,7 @@ export default function Contact() {
 
           {/* Contact Our Wizards Section */}
           <motion.div
-            className="mb-10 md:mb-20 mt-20 md:mt-60"
+            className="mb-10 md:mb-20 mt-20 md:mt-40 lg:mt-60 overflow-hidden"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -71,23 +71,13 @@ export default function Contact() {
         </div>
       </div>
 
-      {/* Cinematic 3D Globe Section - Full width for scroll-triggered animation */}
-      <div className="hidden md:block">
+      {/* Cinematic 3D Globe Section - Full width for scroll-triggered animation - Only on large screens */}
+      <div className="hidden lg:block">
         <CinematicGlobe />
       </div>
 
       {/* Raven Messenger Section */}
-      <div className="relative min-h-screen text-white overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0">
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: 'url(/cnt2.jpeg)' }}
-          />
-          <div className="absolute inset-0 bg-black/70" />
-          <div className="absolute inset-0 bg-linear-to-t from-red-950/40 via-transparent to-black/80" />
-        </div>
-
+      <div className="relative text-white overflow-hidden">
         <div className="max-w-7xl mx-auto relative z-10 px-4 py-32">
           <motion.section
             initial={{ opacity: 0 }}
