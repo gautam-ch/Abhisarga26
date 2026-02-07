@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ImageModal({ open, onClose, product }) {
   const [active, setActive] = useState(0);
@@ -9,47 +11,71 @@ export default function ImageModal({ open, onClose, product }) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 bg-black/90 backdrop-blur z-50 flex items-center justify-center"
+      className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] flex items-center justify-center p-4"
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-gradient-to-br from-black to-red-950 p-8 rounded-2xl max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-8"
+        className="relative bg-black border border-red-500/30 p-6 md:p-10 rounded-sm max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 st-card-glow"
       >
-        {/* LEFT */}
-        <div className="bg-white rounded-xl p-4 flex gap-4">
-          <div className="flex flex-col gap-2">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-white/50 hover:text-red-500 transition-colors"
+        >
+          <X className="w-6 h-6" />
+        </button>
+
+        {/* LEFT - GALLERY */}
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex flex-row md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
             {product.images.map((img, i) => (
               <img
                 key={i}
                 src={img}
                 onClick={() => setActive(i)}
-                className={`w-16 h-16 object-cover rounded-lg cursor-pointer ${
-                  active === i ? "ring-2 ring-sky-400" : "opacity-60"
-                }`}
+                className={`w-16 h-16 object-cover cursor-pointer transition-all ${active === i ? "border-2 border-red-500 opacity-100 scale-105" : "opacity-40 hover:opacity-70"
+                  }`}
               />
             ))}
           </div>
 
-          <img
-            src={product.images[active]}
-            className="rounded-xl max-w-md"
-          />
-        </div>
-
-        {/* RIGHT */}
-        <div className="text-white">
-          <span className="text-sm text-red-400">{product.badge}</span>
-          <h2 className="font-orbitron text-3xl my-3">{product.title}</h2>
-
-          <div className="text-4xl font-bold mb-6">
-            {product.price} <span className="text-sm">RS</span>
+          <div className="flex-1 order-1 md:order-2 bg-neutral-900 overflow-hidden group">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={active}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                src={product.images[active]}
+                className="w-full h-full object-contain aspect-square"
+              />
+            </AnimatePresence>
           </div>
-
-          <button className="w-full py-4 rounded-xl bg-gradient-to-r from-red-500 to-sky-400 font-orbitron">
-            🛒 BUY NOW
-          </button>
         </div>
-      </div>
+
+        {/* RIGHT - INFO */}
+        <div className="flex flex-col justify-center">
+          <span className="st-glow text-red-500 text-xs font-bold tracking-[0.3em] uppercase mb-4">
+            {product.badge}
+          </span>
+          <h2 className="st-title text-3xl md:text-4xl mb-6 st-glow">{product.title}</h2>
+
+
+          <p className="text-white/60 mb-10 leading-relaxed font-light">
+            High-definition archival quality print on premium heavyweight cotton.
+            Limited edition series from the Abhisarga '26 collection.
+          </p>
+
+        </div>
+
+        {/* Corner accents */}
+        <div className="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-red-600/50" />
+        <div className="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-red-600/50" />
+        <div className="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-red-600/50" />
+        <div className="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-red-600/50" />
+      </motion.div>
     </div>
   );
 }

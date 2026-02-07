@@ -87,7 +87,7 @@ export const EventTimeline = ({ events, className = '' }) => {
           behavior: 'smooth',
           block: 'center',
         });
-      } else if (scrollDistance < 0 && cardRefs.current[index]) {
+      } else if (!isMobile && cardRefs.current[index]) {
         // Desktop horizontal centering
         const card = cardRefs.current[index];
         const cardRect = card.getBoundingClientRect();
@@ -118,7 +118,7 @@ export const EventTimeline = ({ events, className = '' }) => {
             behavior: 'smooth',
             block: 'center',
           });
-        } else if (scrollDistance < 0 && cardRefs.current[firstEventIndex]) {
+        } else if (!isMobile && cardRefs.current[firstEventIndex]) {
           // Desktop horizontal scrolling
           const card = cardRefs.current[firstEventIndex];
           const cardRect = card.getBoundingClientRect();

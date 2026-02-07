@@ -1,108 +1,116 @@
 "use client";
 
-import { useState } from "react";
-import ImageModal from "./Imagemodal";
-import ThreeViewer from "./ThreeViewer";
+import { useState, useRef } from "react";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 
 export default function ProductSection({
   type,
-  model,
   badge,
   title,
-  price,
-  accent,
+  accent, // keeping for compatibility but will override with theme red
 }) {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [size, setSize] = useState("XL");
+  const [view, setView] = useState("front"); // 'front' or 'back'
+  const dragX = useMotionValue(0);
 
-  const images =
-    type === "mens"
-      ? ["/images/mens_1.jpg", "/images/mens_2.jpg", "/images/mens_3.jpg"]
-      : ["/images/womens_1.jpg", "/images/womens_2.jpg", "/images/womens_3.jpg"];
+  // Replace 3D with images
+  const productImages = {
+    front: "/tshirt_front.png",
+    back: "/tshirt_back.png"
+  };
+
+  const handleDragEnd = (_, info) => {
+    const threshold = 50;
+    if (info.offset.x > threshold) {
+      setView("front");
+    } else if (info.offset.x < -threshold) {
+      setView("back");
+    }
+  };
+
+  const TShirtView = () => (
+    <div className="relative h-[400px] md:h-[500px] flex flex-col items-center justify-center cursor-grab active:cursor-grabbing group/view">
+      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={view}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            onDragEnd={handleDragEnd}
+            style={{ x: dragX }}
+            initial={{ opacity: 0, scale: 0.9, rotateY: view === 'front' ? -90 : 90 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+            exit={{ opacity: 0, scale: 0.9, rotateY: view === 'front' ? 90 : -90 }}
+            transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
+            className="w-full h-full flex items-center justify-center"
+          >
+            <img
+              src={productImages[view]}
+              alt={`${title} ${view} view`}
+              draggable="false"
+              className="max-w-full max-h-full object-contain drop-shadow-[0_20px_50px_rgba(255,37,70,0.3)] select-none"
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Swipe Indicator */}
+      <div className="absolute top-4 flex items-center gap-2 opacity-0 group-hover/view:opacity-100 transition-opacity">
+        <span className="text-[10px] uppercase tracking-[0.3em] text-red-500 font-bold st-glow">
+          Grab to see the other side
+        </span>
+      </div>
+
+      {/* View Switches */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4 z-20">
+        <button
+          onClick={() => setView("front")}
+          className={`px-4 py-1 text-[10px] uppercase tracking-[0.2em] transition-all border ${view === 'front' ? 'bg-red-600 border-red-600 text-black font-bold' : 'bg-black/40 border-white/20 text-white/60 hover:border-red-500/50'}`}
+        >
+          Top
+        </button>
+        <button
+          onClick={() => setView("back")}
+          className={`px-4 py-1 text-[10px] uppercase tracking-[0.2em] transition-all border ${view === 'back' ? 'bg-red-600 border-red-600 text-black font-bold' : 'bg-black/40 border-white/20 text-white/60 hover:border-red-500/50'}`}
+        >
+          Rear
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <>
-      <section>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center p-12 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+    <section className="relative">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center p-8 md:p-12 bg-black/60 backdrop-blur-md border border-red-500/20 st-card-glow hover:border-red-500/40 transition-all duration-500">
 
-          {/* 3D VIEW */}
-          {type === "mens" && (
-            <div className="relative">
-              <ThreeViewer model={model} />
-              <p className="absolute bottom-3 left-3 text-xs text-gray-400">
-                Drag • Scroll
-              </p>
-            </div>
-          )}
+        {/* Corner accents */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-red-600/50" />
+        <div className="absolute top-0 right-0 w-8 h-8 border-r-2 border-t-2 border-red-600/50" />
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-l-2 border-b-2 border-red-600/50" />
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-red-600/50" />
 
-          {/* DETAILS */}
-          <div>
-            <span
-              className={`inline-block mb-4 px-4 py-1 rounded-full text-xs tracking-widest border
-              ${
-                accent === "red"
-                  ? "bg-red-500/20 text-red-400 border-red-500/30"
-                  : "bg-sky-400/20 text-sky-300 border-sky-400/30"
-              }`}
-            >
-              {badge}
-            </span>
+        {/* IMAGE VIEW (Left side for Men, Right side for Women logic kept) */}
+        {type === "mens" && <TShirtView />}
 
-            <h2 className="font-orbitron text-4xl mb-4">{title}</h2>
-            <p className="text-gray-300 mb-6">
-              Premium cotton blend with glow-in-the-dark print
-            </p>
+        {/* DETAILS */}
+        <div className="relative z-10">
+          <motion.span
+            initial={{ opacity: 0, x: -10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            className="inline-block mb-6 px-4 py-1.5 text-[0.7rem] font-bold tracking-[0.3em] uppercase bg-red-600/20 text-red-500 border border-red-600/30 st-glow"
+          >
+            {badge}
+          </motion.span>
 
-            <div className="text-5xl font-bold mb-6">
-              {price}
-              <span className="text-sm text-gray-400 ml-2">RS</span>
-            </div>
-
-            {/* SIZE */}
-            <div className="flex gap-3 mb-8">
-              {["S", "M", "L", "XL"].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSize(s)}
-                  className={`w-12 h-12 rounded-lg font-semibold transition
-                    ${
-                      size === s
-                        ? "bg-red-500 text-white"
-                        : "bg-black border border-white/20 hover:border-sky-400"
-                    }`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-
-            {/* BUY */}
-            <button className="w-full mb-4 py-4 rounded-xl font-orbitron tracking-widest bg-gradient-to-r from-red-500 to-sky-400 hover:scale-[1.02] transition shadow-lg">
-              🛒 BUY NOW
-            </button>
-
-            <button
-              onClick={() => setModalOpen(true)}
-              className="flex items-center gap-2 text-sm text-gray-300 hover:text-white"
-            >
-              📷 VIEW MORE IMAGES
-            </button>
-          </div>
-
-          {/* WOMEN 3D */}
-          {type === "womens" && (
-            <div className="relative">
-              <ThreeViewer model={model} />
-            </div>
-          )}
+          <h2 className="st-title text-4xl md:text-5xl mb-6 st-glow leading-tight">{title}</h2>
+          <p className="text-white/70 mb-8 leading-relaxed font-light text-lg">
+            Premium cotton blend with <span className="text-red-500">glow-in-the-dark</span> specialty prints.
+            Designed for those who dare to cross into the other side.
+          </p>
         </div>
-      </section>
 
-      <ImageModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        product={{ title, badge, price, images }}
-      />
-    </>
+        {/* IMAGE VIEW (FOR WOMEN) */}
+        {type === "womens" && <TShirtView />}
+      </div>
+    </section>
   );
 }
