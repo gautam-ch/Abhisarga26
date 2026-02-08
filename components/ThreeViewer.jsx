@@ -53,7 +53,10 @@ export default function ThreeViewer({ model }) {
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+    controls.dampingFactor = 0.08; // smooth damping
     controls.enablePan = false;
+    controls.screenSpacePanning = false;
+    controls.rotateSpeed = 0.8;
 
     const loader = new GLTFLoader();
     let meshRef = null;
@@ -91,6 +94,15 @@ export default function ThreeViewer({ model }) {
         cameraZ *= 1.6; // back off a little
         camera.position.set(0, size.y * 0.6, cameraZ + 1);
         camera.lookAt(0, 0, 0);
+
+        // Lock vertical rotation completely (no tilt) so users can only rotate horizontally
+        controls.minPolarAngle = Math.PI / 2;
+        controls.maxPolarAngle = Math.PI / 2;
+
+        // Limit zoom to a small range relative to the computed camera distance
+        const camDistance = camera.position.distanceTo(new THREE.Vector3(0, 0, 0));
+        controls.minDistance = camDistance * 0.85; // slight zoom in
+        controls.maxDistance = camDistance * 1.35; // slight zoom out
 
         function animate() {
           reqId = requestAnimationFrame(animate);

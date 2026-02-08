@@ -44,7 +44,12 @@ export default function ImageModal({ open, onClose, product }) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 bg-black/85 backdrop-blur z-50 flex items-center justify-center p-6"
+      className="fixed inset-0 backdrop-blur z-50 flex items-center justify-center p-6"
+      style={{
+        backgroundImage: "url('/background2.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
