@@ -28,8 +28,8 @@ export default function ProductSection({
   };
 
   const TShirtView = () => (
-    <div className="relative h-[400px] md:h-[500px] flex flex-col items-center justify-center cursor-grab active:cursor-grabbing group/view">
-      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+    <div className="relative h-[450px] md:h-[600px] flex flex-col items-center justify-center cursor-grab active:cursor-grabbing group/view pt-8">
+      <div className="relative w-full h-full flex items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={view}
@@ -43,12 +43,34 @@ export default function ProductSection({
             transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
             className="w-full h-full flex items-center justify-center"
           >
-            <img
-              src={productImages[view]}
-              alt={`${title} ${view} view`}
-              draggable="false"
-              className="max-w-full max-h-full object-contain drop-shadow-[0_20px_50px_rgba(255,37,70,0.3)] select-none"
-            />
+            <div className="relative flex flex-col items-center">
+              {/* Main Image */}
+              <img
+                src={productImages[view]}
+                alt={`${title} ${view} view`}
+                draggable="false"
+                className="max-w-full max-h-[300px] md:max-h-[400px] object-contain drop-shadow-[0_20px_50px_rgba(255,37,70,0.3)] select-none relative z-10"
+              />
+
+              {/* Reflection Effect */}
+              <div
+                className="absolute top-[82%] left-0 w-full h-full opacity-80 select-none pointer-events-none transform scale-y-[-1] transition-all duration-700"
+                style={{
+                  maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 20%, transparent 120%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 20%, transparent 120%)'
+                }}
+              >
+                <img
+                  src={productImages[view]}
+                  alt=""
+                  draggable="false"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Floor Shadow/Glow */}
+              <div className="absolute top-[82%] left-1/2 -translate-x-1/2 w-3/4 h-4 bg-red-600/20 blur-xl rounded-full" />
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -60,13 +82,13 @@ export default function ProductSection({
         </span>
       </div>
 
-      {/* View Switches */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4 z-20">
+      {/* View Switches - Moved to Top */}
+      <div className="absolute top-12 left-1/2 -translate-x-1/2 flex gap-4 z-20">
         <button
           onClick={() => setView("front")}
           className={`px-4 py-1 text-[10px] uppercase tracking-[0.2em] transition-all border ${view === 'front' ? 'bg-red-600 border-red-600 text-black font-bold' : 'bg-black/40 border-white/20 text-white/60 hover:border-red-500/50'}`}
         >
-          Top
+          Front
         </button>
         <button
           onClick={() => setView("back")}
