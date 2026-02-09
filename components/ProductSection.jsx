@@ -9,11 +9,9 @@ export default function ProductSection({
   model,
   badge,
   title,
-  price,
   accent,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [size, setSize] = useState("XL");
 
   const images =
     type === "mens"
@@ -23,9 +21,9 @@ export default function ProductSection({
   return (
     <>
       <section>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center p-12 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-14 items-center px-4 py-8 sm:px-6 sm:py-10 md:px-8 md:py-12 lg:p-12 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
 
-          {/* 3D VIEW */}
+          {/* ===== 3D VIEW (MEN) ===== */}
           {type === "mens" && (
             <div className="relative">
               <ThreeViewer model={model} />
@@ -35,7 +33,7 @@ export default function ProductSection({
             </div>
           )}
 
-          {/* DETAILS */}
+          {/* ===== PRODUCT DETAILS ===== */}
           <div>
             <span
               className={`inline-block mb-4 px-4 py-1 rounded-full text-xs tracking-widest border
@@ -48,60 +46,48 @@ export default function ProductSection({
               {badge}
             </span>
 
-            <h2 className="font-orbitron text-4xl mb-4">{title}</h2>
-            <p className="text-gray-300 mb-6">
-              Premium cotton blend with glow-in-the-dark print
-            </p>
+            {/* Title and descriptive text removed per request */}
 
-            <div className="text-5xl font-bold mb-6">
-              {price}
-              <span className="text-sm text-gray-400 ml-2">RS</span>
-            </div>
+            {/* price removed per design */}
 
-            {/* SIZE */}
-            <div className="flex gap-3 mb-8">
-              {["S", "M", "L", "XL"].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSize(s)}
-                  className={`w-12 h-12 rounded-lg font-semibold transition
-                    ${
-                      size === s
-                        ? "bg-red-500 text-white"
-                        : "bg-black border border-white/20 hover:border-sky-400"
-                    }`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-
-            {/* BUY */}
-            <button className="w-full mb-4 py-4 rounded-xl font-orbitron tracking-widest bg-gradient-to-r from-red-500 to-sky-400 hover:scale-[1.02] transition shadow-lg">
-              🛒 BUY NOW
-            </button>
-
+            {/* Buy button removed. Make View Images full-width */}
             <button
               onClick={() => setModalOpen(true)}
-              className="flex items-center gap-2 text-sm text-gray-300 hover:text-white"
+              className="
+                w-full flex items-center justify-center gap-3
+                mb-4 py-3 sm:py-4 rounded-xl font-orbitron tracking-widest
+                text-sky-100 text-base sm:text-lg
+                border border-sky-400/30
+                bg-gradient-to-r from-sky-600/10 via-sky-500/8 to-sky-600/12
+                backdrop-blur-md
+                transition-all duration-300
+                hover:text-white
+                hover:border-sky-300
+                hover:shadow-[0_0_25px_rgba(56,189,248,0.5)]
+              "
             >
-              📷 VIEW MORE IMAGES
+              <span className="text-xl transition-transform mr-2">📷</span>
+              VIEW MORE IMAGES
             </button>
           </div>
 
-          {/* WOMEN 3D */}
+          {/* ===== 3D VIEW (WOMEN) ===== */}
           {type === "womens" && (
             <div className="relative">
               <ThreeViewer model={model} />
+              <p className="absolute bottom-3 left-3 text-xs text-gray-400">
+                Drag • Scroll
+              </p>
             </div>
           )}
         </div>
       </section>
 
+      {/* ===== IMAGE MODAL ===== */}
       <ImageModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        product={{ title, badge, price, images }}
+        product={{ title, badge, images }}
       />
     </>
   );

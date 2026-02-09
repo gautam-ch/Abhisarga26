@@ -11,10 +11,7 @@ export default function ThreeViewer({ model }) {
   useEffect(() => {
     const container = mountRef.current;
 
-    // If the container has no height (rare with some layouts), ensure a sensible default
-    if (container && container.clientHeight === 0) {
-      container.style.minHeight = "520px";
-    }
+    // rely on CSS responsive heights; fallbacks handled below
 
     const scene = new THREE.Scene();
 
@@ -31,10 +28,12 @@ export default function ThreeViewer({ model }) {
       antialias: true,
     });
 
-    // Fallback sizes if container measurements are still zero
-    const width = container.clientWidth || 800;
-    const height = container.clientHeight || 520;
+    // Initial renderer size from container; renderer will be updated by ResizeObserver
+    const width = container.clientWidth || container.getBoundingClientRect().width || 800;
+    const height = container.clientHeight || container.getBoundingClientRect().height || 520;
     renderer.setSize(width, height);
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.height = "100%";
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
 
@@ -54,7 +53,10 @@ export default function ThreeViewer({ model }) {
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+    controls.dampingFactor = 0.08; // smooth damping
     controls.enablePan = false;
+    controls.screenSpacePanning = false;
+    controls.rotateSpeed = 0.8;
 
     const loader = new GLTFLoader();
     let meshRef = null;
@@ -67,7 +69,7 @@ export default function ThreeViewer({ model }) {
         meshRef = mesh;
 
         // gentle default scale
-        mesh.scale.set(2.8, 2.8, 2.8);
+        mesh.scale.set(4.2, 4.2, 4.2);
         mesh.rotation.y = Math.PI;
 
         // center model and adjust camera based on bounding box
@@ -81,7 +83,7 @@ export default function ThreeViewer({ model }) {
         mesh.position.z -= center.z;
 
         // raise slightly so it's not clipping into floor
-        mesh.position.y += size.y * 0.5;
+        mesh.position.y += size.y * 0.25;
 
         scene.add(mesh);
 
@@ -92,6 +94,15 @@ export default function ThreeViewer({ model }) {
         cameraZ *= 1.6; // back off a little
         camera.position.set(0, size.y * 0.6, cameraZ + 1);
         camera.lookAt(0, 0, 0);
+
+        // Lock vertical rotation completely (no tilt) so users can only rotate horizontally
+        controls.minPolarAngle = Math.PI / 2;
+        controls.maxPolarAngle = Math.PI / 2;
+
+        // Limit zoom to a small range relative to the computed camera distance
+        const camDistance = camera.position.distanceTo(new THREE.Vector3(0, 0, 0));
+        controls.minDistance = camDistance * 0.85; // slight zoom in
+        controls.maxDistance = camDistance * 1.35; // slight zoom out
 
         function animate() {
           reqId = requestAnimationFrame(animate);
@@ -112,18 +123,28 @@ export default function ThreeViewer({ model }) {
       }
     );
 
+    // Use ResizeObserver to react to container size changes (better for responsive layouts)
     const resize = () => {
-      const w = container.clientWidth || width;
-      const h = container.clientHeight || height;
+      const w = container.clientWidth || container.getBoundingClientRect().width || width;
+      const h = container.clientHeight || container.getBoundingClientRect().height || height;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+      renderer.domElement.style.width = "100%";
+      renderer.domElement.style.height = "100%";
     };
 
-    window.addEventListener("resize", resize);
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(resize);
+      ro.observe(container);
+    } else {
+      window.addEventListener("resize", resize);
+    }
 
     return () => {
-      window.removeEventListener("resize", resize);
+      if (ro) ro.disconnect();
+      else window.removeEventListener("resize", resize);
       if (reqId) cancelAnimationFrame(reqId);
       controls.dispose();
       renderer.dispose();
@@ -131,5 +152,5 @@ export default function ThreeViewer({ model }) {
     };
   }, [model]);
 
-  return <div ref={mountRef} className="viewer-container h-[520px]"></div>;
+  return <div ref={mountRef} className="viewer-container h-[320px] sm:h-[380px] md:h-[450px] lg:h-[520px] w-full overflow-hidden"></div>;
 }
