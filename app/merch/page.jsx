@@ -37,20 +37,18 @@ export default function Page() {
           </motion.p>
         </header>
 
-        {/* PRODUCTS */}
-        <div className="space-y-32">
+        {/* PRODUCTS GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
           <ProductSection
             type="mens"
             badge="MEN'S EDITION"
             title="Shadow Warrior"
-            accent="red"
           />
 
           <ProductSection
             type="womens"
             badge="WOMEN'S EDITION"
             title="Night Stalker"
-            accent="red"
           />
         </div>
       </div>
