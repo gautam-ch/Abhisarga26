@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useSpring, AnimatePresence, useMotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
 import TeamCard from "../TeamCard";
 import { teamCategories } from "../../lib/content";
+import D20Loader from "../D20Loader";
 
 function CursorLight() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-
   const springConfig = { damping: 40, stiffness: 80 };
   const lightX = useSpring(mouseX, springConfig);
   const lightY = useSpring(mouseY, springConfig);
@@ -28,7 +28,10 @@ function CursorLight() {
       style={{
         background: useTransform(
           [lightX, lightY],
-          ([x, y]) => `radial-gradient(circle 550px at ${x}px ${y}px, rgba(255, 0, 0, 0.4) 0%, rgba(255, 0, 0, 0.15) 45%, transparent 80%)`
+          ([x, y]) => `radial-gradient(circle 550px at ${x}px ${y}px, 
+            rgba(255,0,0,0.4) 0%, 
+            rgba(255,0,0,0.15) 45%, 
+            transparent 80%)`
         ),
       }}
     />
@@ -37,50 +40,63 @@ function CursorLight() {
 
 export default function TeamPage() {
   const pageRef = useRef(null);
-  const [isVoidActive, setIsVoidActive] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
+  const [showPage, setShowPage] = useState(false);
+  const [deviceType, setDeviceType] = useState("desktop");
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
+    if (showLoader) {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    } else {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    }
     
-    const timer = setTimeout(() => setIsVoidActive(false), 2800);
     return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", checkMobile);
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
     };
+  }, [showLoader]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width <= 820) setDeviceType("mobile");
+      else if (width > 820 && width <= 1024) setDeviceType("tablet"); 
+      else setDeviceType("desktop");
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { scrollYProgress } = useScroll({
-    target: pageRef,
-    offset: ["start start", "end end"],
-  });
-
-  const scrollHintOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
-
-  const bgScale = useSpring(
-    useTransform(scrollYProgress, [0, 1], [1, 1.3]),
-    { stiffness: 25, damping: 40 }
-  );
+  const { scrollYProgress } = useScroll({ target: pageRef, offset: ["start start", "end end"] });
+  const scrollHintOpacity = useTransform(scrollYProgress, [0, 0.02], [1, 0]);
+  const bgScale = useSpring(useTransform(scrollYProgress, [0, 1], [1, 1.3]), { stiffness: 25, damping: 40 });
 
   const getRowsForCategory = (members, catIdx) => {
     let rows = [];
     let tempMembers = [...members];
 
-    if (isMobile) {
-      // Mobile logic: 1 card per row
-      while (tempMembers.length > 0) {
-        rows.push(tempMembers.splice(0, 1));
-      }
+    if (deviceType === "mobile") {
+      while (tempMembers.length > 0) rows.push(tempMembers.splice(0, 1));
       return rows;
     }
 
-    // Original Desktop logic
     if (catIdx === 0) {
       if (tempMembers.length > 0) rows.push(tempMembers.splice(0, 1));
+      while (tempMembers.length > 0) rows.push(tempMembers.splice(0, 2));
+      return rows;
+    }
+
+    if (deviceType === "tablet") {
       while (tempMembers.length > 0) rows.push(tempMembers.splice(0, 2));
     } else {
       let isThree = true;
@@ -93,135 +109,87 @@ export default function TeamPage() {
   };
 
   return (
-    <div
-      ref={pageRef}
-      className="relative min-h-[350vh] w-full bg-black"
-      style={{ isolation: "isolate" }}
-    >
-      <CursorLight />
-
+    <div ref={pageRef} className="relative min-h-[500vh] w-full bg-black overflow-x-hidden" style={{ isolation: "isolate" }}>
+      
       <AnimatePresence>
-        {isVoidActive && (
-          <motion.div
-            key="void-loader"
-            exit={{ opacity: 0, scale: 2, filter: "blur(60px)" }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="fixed inset-0 z-[100] bg-black flex items-center justify-center pointer-events-none"
-          >
-            <motion.div
-              animate={{ scale: [1, 2, 0.5, 60], opacity: [1, 1, 1, 0] }}
-              transition={{ duration: 2.8, ease: "circIn" }}
-              className="w-2 h-2 bg-white rounded-full shadow-[0_0_60px_30px_#ff0000]"
-            />
-          </motion.div>
+        {showLoader && (
+          <D20Loader onComplete={() => { 
+            setShowPage(true); 
+            setTimeout(() => setShowLoader(false), 2000); 
+          }} />
         )}
       </AnimatePresence>
 
-      <motion.div 
-        style={{ opacity: scrollHintOpacity }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isVoidActive ? 0 : 1 }}
-        transition={{ duration: 1 }}
-        className="fixed inset-0 z-10 flex flex-col items-center justify-center pointer-events-none"
-      >
-        <div className="mt-[20vh] flex flex-col items-center px-4">
-          <span className="text-white font-mono text-sm md:text-lg tracking-[0.8em] uppercase mb-10 text-center">
-            Scroll to Explore
-          </span>
-          <div className="relative w-[1px] h-32 bg-white/10 overflow-hidden">
-            <motion.div 
-              animate={{ top: ["-100%", "100%"] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
-              className="absolute w-full h-20 bg-gradient-to-b from-transparent via-red-600 to-transparent"
-            />
-          </div>
-        </div>
-      </motion.div>
-
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <motion.div
-          className="w-full h-full bg-cover bg-center"
-          style={{
-            backgroundImage: "url('/team/background_team.png')",
-            scale: bgScale,
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isVoidActive ? 0 : 1 }}
-          transition={{ duration: 1 }}
+        <motion.div 
+          className="absolute inset-0 bg-cover bg-center" 
+          style={{ backgroundImage: "url('/team/background_team.png')", scale: bgScale }} 
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-60" />
       </div>
 
-      <div className="relative z-20 pt-[110vh]">
+      <CursorLight />
+
+      <motion.div 
+        style={{ opacity: scrollHintOpacity }} 
+        className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+      >
+        <span className="text-white font-mono text-xs md:text-sm lg:text-lg tracking-[0.8em] uppercase">
+          Scroll to Explore
+        </span>
+      </motion.div>
+
+      <motion.div 
+        className="relative z-20 pt-[120vh] pb-[20vh] w-full" 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: showPage ? 1 : 0 }}
+      >
         {teamCategories.map((cat, catIdx) => {
           const rows = getRowsForCategory(cat.members, catIdx);
           return (
-            <section key={`cat-${catIdx}`} className="mb-[200px] md:mb-[400px] px-6 w-full max-w-[1400px] mx-auto">
-              <CategoryHeader title={cat.category} />
-
-              <div className="flex flex-col gap-16 md:gap-64 lg:gap-80 items-center w-full">
-                {rows.map((row, rIdx) => {
-                  const gapClass = row.length === 3 
-                    ? "gap-12 md:gap-20 lg:gap-28" 
-                    : "gap-16 md:gap-28 lg:gap-36"; 
-
-                  return (
-                    <div
-                      key={`row-${catIdx}-${rIdx}`}
-                      className={`flex justify-center items-center w-full ${gapClass}`}
-                    >
-                      {row.map((m, idx) => {
-                        let xStart = 0;
-                        if (!isMobile) {
-                          if (row.length === 3) {
-                            if (idx === 0) xStart = -100;
-                            if (idx === 2) xStart = 100;
-                          } else {
-                            xStart = idx === 0 ? -80 : 80;
-                          }
+            <section key={catIdx} className="mb-[20rem] md:mb-[40rem] px-6 py-24 w-full max-w-[1400px] mx-auto flex flex-col items-center overflow-hidden">
+              <div className="mb-24 md:mb-48 text-center">
+                <h2 className="text-white font-serif font-black text-4xl md:text-7xl italic uppercase tracking-tighter">
+                  {cat.category}
+                </h2>
+              </div>
+              
+              <div className={`flex flex-col items-center w-full ${deviceType === 'mobile' ? 'gap-y-40' : 'gap-y-80 md:gap-y-[20rem]'}`}>
+                {rows.map((row, rIdx) => (
+                  <div key={rIdx} className="flex flex-row flex-nowrap justify-center items-center w-full gap-x-8 md:gap-x-24 lg:gap-x-32">
+                    {row.map((m, idx) => {
+                      let xOffset = 0;
+                      if (deviceType === "desktop") {
+                        if (row.length === 3) {
+                          if (idx === 0) xOffset = -100;
+                          if (idx === 2) xOffset = 100;
+                        } else if (row.length === 2) {
+                          xOffset = idx === 0 ? -80 : 80;
                         }
+                      } else if (deviceType === "tablet" && row.length === 2) {
+                        xOffset = idx === 0 ? -40 : 40;
+                      }
 
-                        return (
-                          <motion.div
-                            key={`${m.name}-${idx}`}
-                            initial={{ opacity: 0, y: 50, x: xStart }}
-                            whileInView={{ opacity: 1, y: 0, x: 0 }}
-                            viewport={{ once: false, amount: 0.2 }}
-                            transition={{
-                              duration: 1,
-                              ease: [0.25, 1, 0.5, 1],
-                              delay: idx * 0.1,
-                            }}
-                            className="w-full md:w-[22%] max-w-[280px] md:max-w-[240px] shrink-0"
-                          >
-                            <TeamCard
-                              {...m}
-                              photoUrl={m.image}
-                              frameUrl="/team/frame_team.png"
-                              socials={m.socials}
-                            />
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
+                      return (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, y: 60, x: xOffset }}
+                          whileInView={{ opacity: 1, y: 0, x: 0 }}
+                          viewport={{ once: true, amount: 0.05 }}
+                          transition={{ duration: 1, ease: [0.25, 1, 0.5, 1], delay: idx * 0.1 }}
+                          className={`shrink-0 relative ${deviceType === 'mobile' ? 'w-full max-w-[320px] py-16' : 'md:w-[26%] max-w-[240px]'}`}
+                        >
+                          <TeamCard {...m} photoUrl={m.image} frameUrl="/team/frame_team.png" socials={m.socials} />
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             </section>
           );
         })}
-      </div>
-      <div className="h-[50vh]" />
-    </div>
-  );
-}
-
-function CategoryHeader({ title }) {
-  return (
-    <div className="flex flex-col items-center mb-16 md:mb-32">
-      <h2 className="text-white font-serif font-black text-3xl md:text-6xl italic uppercase text-center tracking-tighter">
-        {title}
-      </h2>
+      </motion.div>
     </div>
   );
 }
