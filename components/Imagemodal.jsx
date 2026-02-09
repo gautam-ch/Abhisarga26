@@ -6,6 +6,41 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function ImageModal({ open, onClose, product }) {
   const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const autoplayRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    setActive(0);
+  }, [open]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "ArrowRight") setActive((s) => (s + 1) % product.images.length);
+      if (e.key === "ArrowLeft") setActive((s) => (s - 1 + product.images.length) % product.images.length);
+      if (e.key === "Escape") onClose();
+    };
+    if (open) window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [open, product.images.length, onClose]);
+
+  // Autoplay: advance every 3s when modal is open and not paused
+  useEffect(() => {
+    if (!open) return;
+    if (autoplayRef.current) clearInterval(autoplayRef.current);
+    if (!paused) {
+      autoplayRef.current = setInterval(() => {
+        setActive((s) => (s + 1) % product.images.length);
+      }, 3000);
+    }
+    return () => {
+      if (autoplayRef.current) {
+        clearInterval(autoplayRef.current);
+        autoplayRef.current = null;
+      }
+    };
+  }, [open, paused, product.images.length]);
+
   if (!open) return null;
 
   return (
@@ -31,9 +66,8 @@ export default function ImageModal({ open, onClose, product }) {
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex flex-row md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
             {product.images.map((img, i) => (
-              <img
+              <button
                 key={i}
-                src={img}
                 onClick={() => setActive(i)}
                 className={`w-16 h-16 object-cover cursor-pointer transition-all ${active === i ? "border-2 border-red-500 opacity-100 scale-105" : "opacity-40 hover:opacity-70"
                   }`}

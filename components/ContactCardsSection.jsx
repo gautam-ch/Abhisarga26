@@ -13,42 +13,42 @@ if (typeof window !== 'undefined') {
 // Team data - MTG/D&D card style with color themes and character images
 const contacts = [
   {
-    name: "Yashwanth S",
+    name: "Aditya Palapati",
     role: "Chair",
     email: "secretary.sdc@iiits.in",
     color: "#0891b2", // Cyan/Teal
     character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-magi/white-mage.png",
   },
   {
-    name: "Charvi Palem",
+    name: "Co-Chair 1",
     role: "Co-Chair",
-    email: "charvi.p22@iiits.in",
+    email: "cochair1.p23@iiits.in",
     color: "#f59e0b", // Amber/Gold
     character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-magi/arch-mage.png",
   },
   {
-    name: "Suyash Tiwari",
+    name: "Co-Chair 2",
     role: "Co-Chair",
-    email: "suyash.t22@iiits.in",
+    email: "cochair2.p23@iiits.in",
     color: "#10b981", // Green
     character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-loyalists/fencer.png",
   },
   {
-    name: "Abhinav Mars",
+    name: "SLC President",
     role: "SLC President",
     email: "president.slc@iiits.in",
     color: "#dc2626", // Red
     character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-loyalists/royalguard.png",
   },
   {
-    name: "Kannan M",
+    name: "John Michael",
     role: "SDC President",
     email: "president.sdc@iiits.in",
     color: "#7c3aed", // Purple
     character: "https://raw.githubusercontent.com/wesnoth/wesnoth/master/data/core/images/units/human-loyalists/lieutenant.png",
   },
   {
-    name: "Shreeraj M",
+    name: "Siddharth Singh",
     role: "Sponsorship Lead",
     email: "abhisarga.sponsorship@iiits.in",
     color: "#ea580c", // Orange

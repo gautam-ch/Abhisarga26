@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import ProductSection from "../../components/ProductSection";
 import { motion } from "framer-motion";
 
@@ -50,6 +51,7 @@ export default function Page() {
             badge="WOMEN'S EDITION"
             title="Night Stalker"
           />
+
         </div>
       </div>
     </div>
