@@ -33,7 +33,7 @@ export default function Page() {
             transition={{ delay: 0.2 }}
             className="text-white/70 max-w-2xl mx-auto text-lg md:text-xl font-light tracking-wide"
           >
-            Enter the <span className="text-red-500 font-semibold italic">Upside Down</span>{" "}
+            Enter the <span className="text-red-500 font-semibold italic">Dungeons & Dragons</span>{" "}
             with our premium limited edition collection
           </motion.p>
         </header>

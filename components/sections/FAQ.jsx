@@ -35,8 +35,6 @@ export default function FAQ() {
 
   return (
     <section id="faq" className="relative px-4 py-32">
-      <div className="absolute inset-0 bg-linear-to-b from-black via-red-500/5 to-black" />
-
       <div className="relative z-10 mx-auto max-w-6xl space-y-10">
         <div className="text-center">
           <p className="text-xs uppercase tracking-[0.6em] text-red-200">Knowledge</p>

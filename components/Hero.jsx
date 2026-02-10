@@ -81,25 +81,29 @@ const Hero = () => {
 
       <motion.div className="hero-content" variants={container} initial="hidden" animate="visible">
         <motion.div className="left" variants={item}>
-          <h1 className="st-title">
-            STRANGER<br />THINGS
-          </h1>
-          <motion.p className="st-desc" variants={item}>
-            When the lights begin to flicker and reality bends,
-            a hidden world awakens beneath Hawkins.
-            Some doors, once opened, can never be closed.
+          <h1 className="st-title red-title">Abhisarga</h1>
+          <motion.p className="st-text" variants={item}>
+            Abhisarga is IIIT Sri City's annual techno-cultural fest.
+            It combines technology, culture, and entertainment, creating a vibrant platform for talent and innovation.
           </motion.p>
-          <motion.button className="st-btn" variants={item}>
-            Enter the Upside Down
-          </motion.button>
+          <motion.div className="st-text experience-section" variants={item}>
+            <strong>Experience:</strong>
+            <p>Dazzling dance competitions</p>
+            <p>Proshows and DJ nights</p>
+            <p>Technical challenges</p>
+            <p>Cultural performances</p>
+            <p>And much more</p>
+          </motion.div>
+          <motion.p className="st-text" variants={item}>
+            Celebrate creativity and innovation at Abhisarga this March.
+          </motion.p>
         </motion.div>
 
         <motion.div className="right" variants={item}>
-          <h1 className="st-title">The Mind Flayer</h1>
-          <motion.p className="st-text" variants={item}>
-            Shadows creep from another dimension, consuming everything in their path.
-            Unravel the mystery and face the darkness head-on.
-            Will you survive the terror of the Upside Down?
+          <h1 className="st-title red-title">IIIT Sri City</h1>
+          <motion.p className="st-desc" variants={item}>
+            IIIT Sri City, established in 2013, is one of India's premier institutions for Information Technology education, research, and innovation.
+            With state-of-the-art infrastructure and a vibrant campus culture, it nurtures future leaders in technology.
           </motion.p>
         </motion.div>
       </motion.div>

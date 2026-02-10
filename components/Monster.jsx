@@ -2,16 +2,27 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, useAnimations, Environment } from "@react-three/drei";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 
 function MonsterModel() {
     const group = useRef();
     const velocity = useRef(new THREE.Vector2(0, 0));
     const target = useRef(new THREE.Vector2(0, 0));
+    const [isMobile, setIsMobile] = useState(false);
 
     const { scene, animations } = useGLTF("/3d/monster_ani.glb");
     const { actions } = useAnimations(animations, scene);
+
+    // Check if mobile
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // play idle animation
     useEffect(() => {
@@ -61,7 +72,11 @@ function MonsterModel() {
 
     return (
         <group ref={group}>
-            <primitive object={scene} scale={0.6} position={[0, -1.8, 0]} />
+            <primitive 
+                object={scene} 
+                scale={isMobile ? 0.35 : 0.6} 
+                position={[0, -3.3, 0]} 
+            />
         </group>
     );
 }
@@ -69,7 +84,7 @@ function MonsterModel() {
 export default function Monster3D() {
     return (
         <Canvas
-            className="w-full h-full"
+            className="w-full h-full monster-canvas"
             camera={{ position: [0, 1.2, 8], fov: 55 }}
             gl={{ antialias: true, alpha: true }}
         >
