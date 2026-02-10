@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
+import { X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ImageModal({ open, onClose, product }) {
   const [active, setActive] = useState(0);
@@ -44,73 +46,70 @@ export default function ImageModal({ open, onClose, product }) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 backdrop-blur z-50 flex items-center justify-center p-6"
-      style={{
-        backgroundImage: "url('/background2.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] flex items-center justify-center p-4"
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-black/80 rounded-2xl shadow-2xl max-w-6xl w-full overflow-hidden"
+        className="relative bg-black border border-red-500/30 p-6 md:p-10 rounded-sm max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 st-card-glow"
       >
-        {/* Close button */}
+        {/* Close Button */}
         <button
           onClick={onClose}
-          aria-label="Close"
-          className="absolute top-4 right-4 z-30 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full transition"
+          className="absolute top-4 right-4 text-white/50 hover:text-red-500 transition-colors"
         >
-          ✕
+          <X className="w-6 h-6" />
         </button>
 
-        {/* Main image area */}
-        <div className="flex flex-col items-center justify-center p-6">
-          <div
-            className="relative w-full md:h-[520px] h-[360px] flex items-center justify-center bg-gradient-to-b from-black to-gray-900 rounded-lg overflow-hidden"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-          >
-            <button
-              onClick={() => setActive((s) => (s - 1 + product.images.length) % product.images.length)}
-              className="absolute left-3 z-20 bg-black/30 hover:bg-black/50 text-white p-3 rounded-full transition"
-              aria-label="Previous"
-            >
-              ‹
-            </button>
-
-            <img
-              src={product.images[active]}
-              alt={product.title || "Product image"}
-              className="max-h-[86%] max-w-[92%] object-contain rounded-md drop-shadow-2xl transition-all duration-300"
-            />
-
-            <button
-              onClick={() => setActive((s) => (s + 1) % product.images.length)}
-              className="absolute right-3 z-20 bg-black/30 hover:bg-black/50 text-white p-3 rounded-full transition"
-              aria-label="Next"
-            >
-              ›
-            </button>
-          </div>
-
-          {/* Thumbnails */}
-          <div className="mt-4 w-full flex items-center justify-center gap-3 overflow-x-auto py-2">
+        {/* LEFT - GALLERY */}
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex flex-row md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
             {product.images.map((img, i) => (
               <button
                 key={i}
                 onClick={() => setActive(i)}
-                className={`rounded-md overflow-hidden transition-all duration-200 ${
-                  active === i ? "ring-2 ring-red-500 scale-105" : "opacity-70"
-                }`}
-                style={{width: 96, height: 96}}
-              >
-                <img src={img} alt={`thumb-${i}`} className="w-full h-full object-cover" />
-              </button>
+                className={`w-16 h-16 object-cover cursor-pointer transition-all ${active === i ? "border-2 border-red-500 opacity-100 scale-105" : "opacity-40 hover:opacity-70"
+                  }`}
+              />
             ))}
           </div>
+
+          <div className="flex-1 order-1 md:order-2 bg-neutral-900 overflow-hidden group">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={active}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                src={product.images[active]}
+                className="w-full h-full object-contain aspect-square"
+              />
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
+
+        {/* RIGHT - INFO */}
+        <div className="flex flex-col justify-center">
+          <span className="st-glow text-red-500 text-xs font-bold tracking-[0.3em] uppercase mb-4">
+            {product.badge}
+          </span>
+          <h2 className="st-title text-3xl md:text-4xl mb-6 st-glow">{product.title}</h2>
+
+
+          <p className="text-white/60 mb-10 leading-relaxed font-light">
+            High-definition archival quality print on premium heavyweight cotton.
+            Limited edition series from the Abhisarga '26 collection.
+          </p>
+
+        </div>
+
+        {/* Corner accents */}
+        <div className="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-red-600/50" />
+        <div className="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-red-600/50" />
+        <div className="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-red-600/50" />
+        <div className="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-red-600/50" />
+      </motion.div>
     </div>
   );
 }
